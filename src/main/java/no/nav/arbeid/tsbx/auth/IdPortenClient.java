@@ -8,6 +8,7 @@ import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
@@ -57,13 +58,18 @@ public class IdPortenClient {
                     clientKey.getKeyID(),null);
 
             final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
-
-            final var httpResponse = OIDCTokenResponse.parse(tokenRequest.toHTTPRequest().send());
-            if (!httpResponse.indicatesSuccess()) {
-                throw new IdPortenClientException(httpResponse.toErrorResponse().getErrorObject().toString());
+            final var tokenResponse = tokenRequest.toHTTPRequest().send();
+            if (!tokenResponse.indicatesSuccess()) {
+                throw new IdPortenClientException("Bad token response status: "
+                        + tokenResponse.getStatusCode() + ", content: " + tokenResponse.getContent());
             }
 
-            return httpResponse.toSuccessResponse();
+            final var oidcTokenResponse = OIDCTokenResponse.parse(tokenResponse);
+            if (!oidcTokenResponse.indicatesSuccess()) {
+                throw new IdPortenClientException(oidcTokenResponse.toErrorResponse().getErrorObject().toString());
+            }
+
+            return oidcTokenResponse.toSuccessResponse();
         } catch (Exception e) {
             throw new IdPortenClientException(e);
         }
