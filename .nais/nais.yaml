@@ -12,11 +12,11 @@ spec:
   port: 9111
   liveness:
     path: "/internal/isalive"
-    initialDelay: 20
+    initialDelay: 10
     timeout: 60
   readiness:
     path: "/internal/isready"
-    initialDelay: 20
+    initialDelay: 10
     timeout: 60
   preStopHook:
     http:
