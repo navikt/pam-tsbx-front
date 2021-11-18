@@ -36,6 +36,11 @@ spec:
   ingresses:
     - "https://pam-tsbx-front.dev.intern.nav.no"
 
+  accessPolicy:
+    outbound:
+      external:
+        - host: oidc-ver2.difi.no
+
   idporten:
     enabled: true
 
