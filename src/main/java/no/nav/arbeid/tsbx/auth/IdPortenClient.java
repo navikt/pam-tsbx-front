@@ -1,17 +1,23 @@
 package no.nav.arbeid.tsbx.auth;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.auth.JWTAuthenticationClaimsSet;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
+import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,17 +45,10 @@ public class IdPortenClient {
 
         final var callbackUri = idPortenProps.redirectUri();
         final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authState.getCodeVerifier());
-        final var clientId = new ClientID(idPortenProps.clientId());
         final var tokenEndpoint = oidcProvider.getTokenEndpointURI();
 
         try {
-            final var clientAuth = new PrivateKeyJWT(
-                    clientId,
-                    oidcProvider.getTokenEndpointURI(),
-                    JWSAlgorithm.RS256,
-                    clientKey.toRSAPrivateKey(),
-                    null,null);
-
+            final var clientAuth = generateSignedClientAuth();
             final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
@@ -99,6 +98,21 @@ public class IdPortenClient {
     private RSAKey parseClientJwk() throws ParseException {
         String jsonValue = idPortenProps.clientJwk();
         return JWK.parse(jsonValue).toRSAKey();
+    }
+
+    private PrivateKeyJWT generateSignedClientAuth() throws JOSEException {
+        final ClientID clientID = new ClientID(idPortenProps.clientId());
+        final Date expiry = new Date(new Date().getTime() + 10*60* 1000L);
+        final List<Audience> audienceList = List.of(new Audience(oidcProvider.getTokenEndpointURI()));
+
+        final JWTAuthenticationClaimsSet jwtAuthenticationClaimsSet = new JWTAuthenticationClaimsSet(
+                clientID, audienceList, expiry, null, null, new JWTID());
+
+        return new PrivateKeyJWT(jwtAuthenticationClaimsSet,
+                JWSAlgorithm.RS256,
+                clientKey.toRSAPrivateKey(),
+                clientKey.getKeyID(),
+                null);
     }
 
     public static class IdPortenClientException extends RuntimeException {
