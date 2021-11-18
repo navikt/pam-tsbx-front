@@ -27,6 +27,7 @@ public class AuthConfiguration {
         HTTPResponse response = new OIDCProviderConfigurationRequest(issuer).toHTTPRequest().send();
 
         // todo log well known metadata response
+        LOG.info("OIDC issuer well known metadata URL: {}", idPortenConfig.wellKnownUrl());
         LOG.info("OIDC issuer well known metadata:");
         LOG.info(response.getContent());
 
