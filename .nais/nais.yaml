@@ -35,14 +35,11 @@ spec:
       memory: "256Mi"
   ingresses:
     - {{ingress}}
-  env:
-    - name: IDPORTEN_CLIENT_URI
-      value: {{ingress}}
 
   idporten:
     enabled: true
 
-    clientURI: {{ingress}}
+    clientURI: https://nav.no
 
     # optional, default shown
     redirectPath: "/oauth2/callback"
@@ -52,7 +49,7 @@ spec:
 
     # optional, defaults shown
     postLogoutRedirectURIs:
-      - "https://tsbx-front.dev.intern.nav.no/loggedout"
+      - "https://nav.no"
 
     # optional, in seconds - defaults shown (1 hour)
     accessTokenLifetime: 3600

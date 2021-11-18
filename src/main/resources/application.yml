@@ -10,7 +10,7 @@ logback:
     config-resource: /logback-access.xml
 
 idporten:
-  clientUri: ${IDPORTEN_CLIENT_URI}
+  clientUri: https://nav.no
   clientId: ${IDPORTEN_CLIENT_ID}
   clientJwk: ${IDPORTEN_CLIENT_JWK}
   redirectUri: ${IDPORTEN_REDIRECT_URI}
