@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: pam-tsbx-front
+
+server:
+  port: 9111
+
+logback:
+  access:
+    config-resource: /logback-access.xml
+
+idporten:
+  clientUri: https://nav.no
+  clientId: ${IDPORTEN_CLIENT_ID}
+  clientJwk: ${IDPORTEN_CLIENT_JWK}
+  redirectUri: ${IDPORTEN_REDIRECT_URI}
+  wellKnownUrl: ${IDPORTEN_WELL_KNOWN_URL}
