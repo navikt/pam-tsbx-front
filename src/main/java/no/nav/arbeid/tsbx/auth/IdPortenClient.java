@@ -105,7 +105,7 @@ public class IdPortenClient {
 
     private PrivateKeyJWT generateSignedClientAuth() throws JOSEException {
         final ClientID clientID = new ClientID(idPortenProps.clientId());
-        final Date exp = Date.from(Instant.now().plus(300, ChronoUnit.MINUTES));
+        final Date exp = Date.from(Instant.now().plus(5, ChronoUnit.MINUTES));
         final List<Audience> audienceList = List.of(new Audience(oidcProvider.getTokenEndpointURI()));
 
         final JWTAuthenticationClaimsSet jwtAuthenticationClaimsSet = new JWTAuthenticationClaimsSet(
