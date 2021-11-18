@@ -48,7 +48,7 @@ public class IdPortenClient {
                     oidcProvider.getTokenEndpointURI(),
                     JWSAlgorithm.RS256,
                     clientKey.toRSAPrivateKey(),
-                    clientKey.getKeyID(),null);
+                    null,null);
 
             final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
