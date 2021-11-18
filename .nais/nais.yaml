@@ -34,13 +34,15 @@ spec:
       cpu: "200m"
       memory: "256Mi"
   ingresses:
-    - "https://pam-tsbx-front.dev.intern.nav.no"
+    - {{ingress}}
+  env:
+    - name: IDPORTEN_CLIENT_URI
+      value: {{ingress}}
 
   idporten:
     enabled: true
 
-    # optional, default shown
-    clientURI: "https://pam-tsbx-front.dev.intern.nav.no"
+    clientURI: {{ingress}}
 
     # optional, default shown
     redirectPath: "/oauth2/callback"

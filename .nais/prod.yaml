@@ -1,2 +1,1 @@
-ingresses:
-  - "https://tsbx-front.intern.nav.no"
+ingress: "https://pam-tsbx-front.intern.nav.no"
