@@ -14,6 +14,7 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 
 @EnableConfigurationProperties(IdPortenConfigurationProperties.class)
 @Configuration
@@ -23,13 +24,10 @@ public class AuthConfiguration {
 
     @Bean
     public OIDCProviderMetadata idPortenMetadata(IdPortenConfigurationProperties idPortenConfig) throws IOException, ParseException {
-        Issuer issuer = new Issuer(idPortenConfig.wellKnownUrl());
+        // Nimbus library requires provider URL without the .well-known/openid... suffix appended
+        URI issuerUrl = idPortenConfig.wellKnownUrl().resolve("..");
+        Issuer issuer = new Issuer(issuerUrl);
         HTTPResponse response = new OIDCProviderConfigurationRequest(issuer).toHTTPRequest().send();
-
-        // todo log well known metadata response
-        LOG.info("OIDC issuer well known metadata URL: {}", idPortenConfig.wellKnownUrl());
-        LOG.info("OIDC issuer well known metadata:");
-        LOG.info(response.getContent());
 
         return OIDCProviderMetadata.parse(response.getContent());
     }
