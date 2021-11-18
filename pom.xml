@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>no.nav.arbeid.tsbx</groupId>
-	<artifactId>front</artifactId>
+	<artifactId>pam-tsbx-front</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>front</name>
+	<name>pam-tsbx-front</name>
 	<description>Token sandbox frontend</description>
 
 	<properties>
