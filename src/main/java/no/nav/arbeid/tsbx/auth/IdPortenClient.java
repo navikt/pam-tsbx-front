@@ -16,6 +16,9 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -102,11 +105,11 @@ public class IdPortenClient {
 
     private PrivateKeyJWT generateSignedClientAuth() throws JOSEException {
         final ClientID clientID = new ClientID(idPortenProps.clientId());
-        final Date expiry = new Date(new Date().getTime() + 10*60* 1000L);
+        final Date exp = Date.from(Instant.now().plus(65, ChronoUnit.MINUTES));
         final List<Audience> audienceList = List.of(new Audience(oidcProvider.getTokenEndpointURI()));
 
         final JWTAuthenticationClaimsSet jwtAuthenticationClaimsSet = new JWTAuthenticationClaimsSet(
-                clientID, audienceList, expiry, null, null, new JWTID());
+                clientID, audienceList, exp, null, null, new JWTID());
 
         return new PrivateKeyJWT(jwtAuthenticationClaimsSet,
                 JWSAlgorithm.RS256,
