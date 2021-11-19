@@ -11,6 +11,7 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class IdPortenClient {
 
             LOG.info("Client auth claims: {}", clientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
 
-            final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
+            final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant, new Scope(OIDCScopeValue.OPENID));
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
                 throw new IdPortenClientException("Bad token response status: "
