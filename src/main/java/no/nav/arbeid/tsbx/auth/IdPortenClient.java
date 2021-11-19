@@ -51,19 +51,17 @@ public class IdPortenClient {
     }
 
     public OIDCTokenResponse fetchCodeGrantToken(AuthState authState, AuthorizationCode authCode) {
-
         final var callbackUri = idPortenProps.redirectUri();
         final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authState.getCodeVerifier());
         final var tokenEndpoint = oidcProvider.getTokenEndpointURI();
 
         try {
-            final var clientAuth = generateSignedClientAuth();
-
-            LOG.info("Client auth claims: {}", clientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
+            final var signedJwtClientAuth = generateSignedClientAuth();
+            LOG.debug("Client auth claims: {}", signedJwtClientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
 
             final var tokenRequest = new TokenRequest(
                     tokenEndpoint,
-                    clientAuth,
+                    signedJwtClientAuth,
                     authorizationCodeGrant,
                     new Scope(OIDCScopeValue.OPENID));
 
@@ -119,16 +117,18 @@ public class IdPortenClient {
 
     private PrivateKeyJWT generateSignedClientAuth() throws JOSEException {
         final ClientID clientID = new ClientID(idPortenProps.clientId());
-        final Date exp = Date.from(Instant.now().plus(5, ChronoUnit.MINUTES));
-        final List<Audience> audienceList = List.of(new Audience(oidcProvider.getTokenEndpointURI()));
+        final Instant now = Instant.now();
+        final Date iat = Date.from(now);
+        final Date exp = Date.from(now.plusSeconds(30));
+        final List<Audience> aud = List.of(new Audience(oidcProvider.getIssuer()));
 
         final JWTAuthenticationClaimsSet jwtAuthenticationClaimsSet = new JWTAuthenticationClaimsSet(
-                clientID, audienceList, exp, null, null, new JWTID());
+                clientID, aud, exp, null, iat, new JWTID());
 
         return new PrivateKeyJWT(jwtAuthenticationClaimsSet,
                 JWSAlgorithm.RS256,
                 clientKey.toRSAPrivateKey(),
-                null,
+                clientKey.getKeyID(),
                 null);
     }
 
