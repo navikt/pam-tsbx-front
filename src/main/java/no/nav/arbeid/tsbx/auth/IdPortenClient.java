@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -60,7 +61,14 @@ public class IdPortenClient {
 
             LOG.info("Client auth claims: {}", clientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
 
-            final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant, new Scope(OIDCScopeValue.OPENID));
+            final var tokenRequest = new TokenRequest(
+                    tokenEndpoint,
+                    clientAuth,
+                    authorizationCodeGrant,
+                    new Scope(OIDCScopeValue.OPENID),
+                    List.of(idPortenProps.clientUri()),
+                    Map.of("redirectUri", List.of(idPortenProps.redirectUri().toASCIIString())));
+
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
                 throw new IdPortenClientException("Bad token response status: "
