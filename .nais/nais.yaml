@@ -35,12 +35,18 @@ spec:
       memory: "256Mi"
   ingresses:
     - {{ingress}}
+  env:
+    - name: IDPORTEN_POST_LOGOUT_URI
+      value: {{ingress}}
 
   idporten:
     enabled: true
 
     # optional, in seconds - defaults shown (1 hour)
     accessTokenLifetime: 3600
+
+    postLogoutRedirectURIs:
+      - {{ingress}}
 
     # optional, in seconds - defaults shown (2 hours)
     sessionLifetime: 7200

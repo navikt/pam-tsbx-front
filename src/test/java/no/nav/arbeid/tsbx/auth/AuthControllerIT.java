@@ -27,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_COOKIES;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_REDIRECTS;
 
@@ -73,15 +74,21 @@ public class AuthControllerIT {
                 "acr", "Level3",
                 "pid", expectedUserInfo.pid())));
 
-        RequestEntity<Void> request = RequestEntity.get(localServerUrl() + "/auth/login")
-                .accept(MediaType.APPLICATION_JSON).build();
 
-        ResponseEntity<UserInfo> response = restTemplate.exchange(request, UserInfo.class);
+        ResponseEntity<Void> loginFlowResponse = restTemplate.exchange(
+                RequestEntity.get(localServerUrl() + "/auth/login")
+                        .accept(MediaType.TEXT_HTML)
+                        .build(), Void.class);
 
-        assertEquals(expectedUserInfo.name(), response.getBody().name());
-        assertEquals(expectedUserInfo.pid(), response.getBody().pid());
+        assertEquals(HttpStatus.OK, loginFlowResponse.getStatusCode());
 
-        LOG.info("Login using authorization code flow successful as {}", response.getBody().name());
+        ResponseEntity<UserInfo> userInfoResponse = restTemplate.exchange(
+                RequestEntity.get(localServerUrl() + "/user").accept(MediaType.APPLICATION_JSON).build(), UserInfo.class);
+
+        assertEquals(expectedUserInfo.name(), userInfoResponse.getBody().name());
+        assertEquals(expectedUserInfo.pid(), userInfoResponse.getBody().pid());
+
+        LOG.info("Login using authorization code flow successful as {}", userInfoResponse.getBody().name());
     }
 
     @Test
@@ -93,14 +100,20 @@ public class AuthControllerIT {
                 "acr", "Level3",
                 "pid", userInfo.pid())));
 
-        RequestEntity<Void> request = RequestEntity.get(localServerUrl() + "/auth/login")
-                .accept(MediaType.APPLICATION_JSON).build();
-
-        ResponseEntity<UserInfo> response = restTemplate.exchange(request, UserInfo.class);
+        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get(localServerUrl() + "/auth/login")
+                .accept(MediaType.TEXT_HTML).build(), Void.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        ResponseEntity<String> logoutResponse = restTemplate.exchange(RequestEntity.get("/auth/logout").build(), String.class);
-        assertEquals("logged out", logoutResponse.getBody());
+        ResponseEntity<Void> logoutResponse = restTemplate.exchange(RequestEntity.get("/auth/logout")
+                .accept(MediaType.TEXT_HTML)
+                .build(), Void.class);
+        assertEquals(HttpStatus.OK, logoutResponse.getStatusCode());
+
+        ResponseEntity<String> userInfoResponse = restTemplate.exchange(RequestEntity.get("/user")
+                .accept(MediaType.TEXT_PLAIN)
+                .build(), String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, userInfoResponse.getStatusCode());
     }
 
 

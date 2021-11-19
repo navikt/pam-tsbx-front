@@ -6,8 +6,8 @@ import java.util.Optional;
 public class UserSession implements Serializable {
 
     private UserInfo userInfo;
-    private AuthState authState;
-    private String idPortenSessionId;
+    private AuthFlowState authFlowState;
+    private IdPortenSessionState idPortenSessionState;
 
     public Optional<UserInfo> getUserInfo() {
         return Optional.ofNullable(userInfo);
@@ -17,28 +17,24 @@ public class UserSession implements Serializable {
         this.userInfo = userInfo;
     }
 
-    public Optional<String> getIdPortenSessionId() {
-        return Optional.ofNullable(idPortenSessionId);
+    public Optional<IdPortenSessionState> getIdPortenSessionState() {
+        return Optional.ofNullable(idPortenSessionState);
     }
 
-    public void setIdPortenSessionId(String idPortenSessionId) {
-        this.idPortenSessionId = idPortenSessionId;
+    public void setIdPortenSessionState(IdPortenSessionState idPortenSessionState) {
+        this.idPortenSessionState = idPortenSessionState;
     }
 
-    public AuthState setNewAuthState() {
-        final AuthState instance = new AuthState();
-        this.authState = instance;
+    public AuthFlowState setNewAuthFlowState() {
+        final AuthFlowState instance = new AuthFlowState();
+        this.authFlowState = instance;
         return instance;
     }
 
-    public Optional<AuthState> getAndRemoveAuthState() {
-        final AuthState instance = this.authState;
-        this.authState = null;
+    public Optional<AuthFlowState> getAndRemoveAuthFlowState() {
+        final AuthFlowState instance = this.authFlowState;
+        this.authFlowState = null;
         return Optional.ofNullable(instance);
-    }
-
-    public boolean isAuthenticated() {
-        return getUserInfo().isPresent();
     }
 
 }

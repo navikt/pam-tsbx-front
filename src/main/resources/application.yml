@@ -11,6 +11,7 @@ logback:
 
 idporten:
   clientUri: https://nav.no
+  postLogoutUri: ${IDPORTEN_POST_LOGOUT_URI}
   clientId: ${IDPORTEN_CLIENT_ID}
   clientJwk: ${IDPORTEN_CLIENT_JWK}
   redirectUri: ${IDPORTEN_REDIRECT_URI}

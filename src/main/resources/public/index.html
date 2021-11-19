@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Token sandbox front</title>
+    <meta charset='utf-8'>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; }
+    </style>
+</head>
+<body>
+
+<h1>Token sandbox front &#x1f3d6;&#xfe0f;</h1>
+<p id="userInfo"></p>
+<p id="userActions"></p>
+<script>
+    function updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const userActions = document.getElementById('userActions');
+        fetch("/user", { cache: 'no-cache' })
+            .then((res) => {
+                if (res.status !== 200) {
+                    throw Error("Not logged in");
+                }
+                return res.json();
+            })
+            .then((user) => {
+                userInfo.innerHTML = `Du er logget inn som ${user.name} (${user.pid}).`;
+                userActions.innerHTML = `<a href="/auth/logout">Logg ut</a>`;
+            })
+            .catch((err) => {
+                userInfo.innerHTML = `Du er ikke logget inn.`;
+                userActions.innerHTML = `<a href="/auth/login">Logg inn med ID-porten</a>`;
+            })
+    }
+    updateUserInfo();
+</script>
+</body>
+</html>

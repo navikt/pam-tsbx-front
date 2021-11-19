@@ -4,13 +4,16 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.JWTAuthenticationClaimsSet;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.JWTID;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
+import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -20,11 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -50,9 +50,9 @@ public class IdPortenClient {
         }
     }
 
-    public OIDCTokenResponse fetchCodeGrantToken(AuthState authState, AuthorizationCode authCode) {
+    public OIDCTokenResponse fetchCodeGrantToken(AuthFlowState authFlowState, AuthorizationCode authCode) {
         final var callbackUri = idPortenProps.redirectUri();
-        final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authState.getCodeVerifier());
+        final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authFlowState.getCodeVerifier());
         final var tokenEndpoint = oidcProvider.getTokenEndpointURI();
 
         try {
@@ -82,7 +82,7 @@ public class IdPortenClient {
         }
     }
 
-    public URI buildAuthorizationRequestUri(AuthState authState) {
+    public URI buildAuthorizationRequestUri(AuthFlowState authFlowState) {
         // The authorisation endpoint of the server
         URI authzEndpoint = oidcProvider.getAuthorizationEndpointURI();
 
@@ -96,17 +96,22 @@ public class IdPortenClient {
         return new AuthorizationRequest.Builder(new ResponseType(ResponseType.Value.CODE), clientID)
                 .scope(new Scope(OIDCScopeValue.OPENID))
                 .resource(idPortenProps.clientUri())
-                .state(authState.getState())
-                .customParameter("nonce", authState.getNonce().getValue())
-                .codeChallenge(authState.getCodeVerifier(), CodeChallengeMethod.S256)
+                .state(authFlowState.getState())
+                .customParameter("nonce", authFlowState.getNonce().getValue())
+                .codeChallenge(authFlowState.getCodeVerifier(), CodeChallengeMethod.S256)
                 .redirectionURI(callback)
                 .endpointURI(authzEndpoint)
                 .build()
                 .toURI();
     }
 
-    public URI getEndSessionRequestUri() {
-        return oidcProvider.getEndSessionEndpointURI();
+    public URI buildEndSessionRequestUri(JWT idToken) {
+        LogoutRequest logoutRequest = new LogoutRequest(
+                oidcProvider.getEndSessionEndpointURI(),
+                idToken,
+                idPortenProps.postLogoutUri(),
+                null);
+        return logoutRequest.toURI();
     }
 
     private RSAKey parseClientJwk() throws ParseException {

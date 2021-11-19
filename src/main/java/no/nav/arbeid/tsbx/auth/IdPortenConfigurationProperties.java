@@ -14,6 +14,7 @@ import java.util.Objects;
 @ConstructorBinding
 public record IdPortenConfigurationProperties(
         URI clientUri,
+        URI postLogoutUri,
         String clientId,
         String clientJwk,
         URI redirectUri,
@@ -28,6 +29,7 @@ public record IdPortenConfigurationProperties(
      */
     public IdPortenConfigurationProperties {
         Objects.requireNonNull(clientUri);
+        Objects.requireNonNull(postLogoutUri);
         Objects.requireNonNull(clientId);
         Objects.requireNonNull(clientJwk);
         Objects.requireNonNull(redirectUri);
