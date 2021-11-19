@@ -30,7 +30,7 @@ import java.util.Objects;
  * Build URLs for idporten redirects.
  */
 public class IdPortenClient {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(IdPortenClient.class);
 
     private final OIDCProviderMetadata oidcProvider;
@@ -56,9 +56,9 @@ public class IdPortenClient {
 
         try {
             final var clientAuth = generateSignedClientAuth();
-            
+
             LOG.info("Client auth claims: {}", clientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
-            
+
             final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
@@ -113,7 +113,7 @@ public class IdPortenClient {
     private PrivateKeyJWT generateSignedClientAuth() throws JOSEException {
         final ClientID clientID = new ClientID(idPortenProps.clientId());
         final Date exp = Date.from(Instant.now().plus(5, ChronoUnit.MINUTES));
-        final List<Audience> audienceList = List.of(new Audience(oidcProvider.getTokenEndpointURI()));
+        final List<Audience> audienceList = List.of(new Audience(oidcProvider.getIssuer()));
 
         final JWTAuthenticationClaimsSet jwtAuthenticationClaimsSet = new JWTAuthenticationClaimsSet(
                 clientID, audienceList, exp, null, null, new JWTID());
