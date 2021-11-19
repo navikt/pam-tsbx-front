@@ -39,18 +39,6 @@ spec:
   idporten:
     enabled: true
 
-    clientURI: https://nav.no
-
-    # optional, default shown
-    redirectPath: "/oauth2/callback"
-
-    # optional, default shown
-    frontchannelLogoutPath: "/oauth2/logout"
-
-    # optional, defaults shown
-    postLogoutRedirectURIs:
-      - "https://nav.no"
-
     # optional, in seconds - defaults shown (1 hour)
     accessTokenLifetime: 3600
 
