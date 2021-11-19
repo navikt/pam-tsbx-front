@@ -24,12 +24,28 @@ public class AuthConfiguration {
 
     @Bean
     public OIDCProviderMetadata idPortenMetadata(IdPortenConfigurationProperties idPortenConfig) throws IOException, ParseException {
+        logIdPortenConfig(idPortenConfig);
+
         // Nimbus library requires provider URL without the .well-known/openid... suffix appended
         URI issuerUrl = idPortenConfig.wellKnownUrl().resolve("..");
         Issuer issuer = new Issuer(issuerUrl);
         HTTPResponse response = new OIDCProviderConfigurationRequest(issuer).toHTTPRequest().send();
+        OIDCProviderMetadata metadata = OIDCProviderMetadata.parse(response.getContent());
 
-        return OIDCProviderMetadata.parse(response.getContent());
+        logOidcProviderMetadata(metadata);
+
+        return metadata;
+    }
+
+    private void logIdPortenConfig(IdPortenConfigurationProperties idPortenConfigurationProperties) {
+        LOG.info("ID-porten client configuration: clientUri: {}, clientId: {}, redirectUri: {}, well-known: {}",
+                idPortenConfigurationProperties.clientUri(), idPortenConfigurationProperties.clientId(),
+                idPortenConfigurationProperties.redirectUri(), idPortenConfigurationProperties.wellKnownUrl());
+    }
+
+    private void logOidcProviderMetadata(OIDCProviderMetadata metadata) {
+        LOG.info("OIDC provider metadata: authorize endpoint: {}, token endpoint: {}, JWKs endpoint: {}",
+                metadata.getAuthorizationEndpointURI(), metadata.getTokenEndpointURI(), metadata.getJWKSetURI());
     }
 
     @Bean

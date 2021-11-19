@@ -13,6 +13,8 @@ import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.text.ParseException;
@@ -28,6 +30,8 @@ import java.util.Objects;
  * Build URLs for idporten redirects.
  */
 public class IdPortenClient {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(IdPortenClient.class);
 
     private final OIDCProviderMetadata oidcProvider;
     private final IdPortenConfigurationProperties idPortenProps;
@@ -52,6 +56,9 @@ public class IdPortenClient {
 
         try {
             final var clientAuth = generateSignedClientAuth();
+            
+            LOG.info("Client auth claims: {}", clientAuth.getClientAssertion().getJWTClaimsSet().toJSONObject(true));
+            
             final var tokenRequest = new TokenRequest(tokenEndpoint, clientAuth, authorizationCodeGrant);
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
