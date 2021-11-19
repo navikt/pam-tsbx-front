@@ -45,7 +45,7 @@ public class AuthConfiguration {
 
         try {
             JWK clientJwk = JWK.parse(idPortenConfigurationProperties.clientJwk());
-            LOG.info("Parsed client JWK: {}" + clientJwk.toJSONObject());
+            LOG.info("Client JWK key id: {}, operations: {}", clientJwk.getKeyID(), clientJwk.getKeyOperations());
         } catch (java.text.ParseException pe) {
             LOG.warn("Failed to parse client JWK", pe);
         }
