@@ -93,9 +93,8 @@ public class IdPortenClient {
         URI callback = idPortenProps.redirectUri();
 
         // Build the request URI
-        return new AuthorizationRequest.Builder(
-                new ResponseType(ResponseType.Value.CODE), clientID)
-                .scope(new Scope("openid"))
+        return new AuthorizationRequest.Builder(new ResponseType(ResponseType.Value.CODE), clientID)
+                .scope(new Scope(OIDCScopeValue.OPENID))
                 .resource(idPortenProps.clientUri())
                 .state(authState.getState())
                 .customParameter("nonce", authState.getNonce().getValue())
