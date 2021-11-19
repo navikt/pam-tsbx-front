@@ -38,6 +38,23 @@ public class AuthConfiguration {
         return metadata;
     }
 
+    @Bean
+    @SessionScope
+    public UserSession userSession() {
+        return new UserSession();
+    }
+
+    @Bean
+    public IdPortenClient oidcTokenClient(OIDCProviderMetadata oidcProviderMetadata, IdPortenConfigurationProperties idPortenProps) {
+        return new IdPortenClient(oidcProviderMetadata, idPortenProps);
+    }
+
+    @Bean
+    public IdPortenTokenValidator idPortenIdTokenValidator(IdPortenConfigurationProperties idPortenProps,
+                                                           OIDCProviderMetadata metadata) throws MalformedURLException {
+        return new IdPortenTokenValidator(idPortenProps, metadata);
+    }
+
     private void logIdPortenConfig(IdPortenConfigurationProperties idPortenConfigurationProperties) {
         LOG.info("ID-porten client configuration: clientUri: {}, clientId: {}, redirectUri: {}, well-known: {}",
                 idPortenConfigurationProperties.clientUri(), idPortenConfigurationProperties.clientId(),
@@ -54,22 +71,5 @@ public class AuthConfiguration {
     private void logOidcProviderMetadata(OIDCProviderMetadata metadata) {
         LOG.info("OIDC provider metadata: authorize endpoint: {}, token endpoint: {}, JWKs endpoint: {}",
                 metadata.getAuthorizationEndpointURI(), metadata.getTokenEndpointURI(), metadata.getJWKSetURI());
-    }
-
-    @Bean
-    @SessionScope
-    public UserSession userSession() {
-        return new UserSession();
-    }
-
-    @Bean
-    public IdPortenClient oidcTokenClient(OIDCProviderMetadata oidcProviderMetadata, IdPortenConfigurationProperties idPortenProps) {
-        return new IdPortenClient(oidcProviderMetadata, idPortenProps);
-    }
-
-    @Bean
-    public IdPortenTokenValidator idPortenIdTokenValidator(IdPortenConfigurationProperties idPortenProps,
-                                                           OIDCProviderMetadata metadata) throws MalformedURLException {
-        return new IdPortenTokenValidator(idPortenProps, metadata);
     }
 }

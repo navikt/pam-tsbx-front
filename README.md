@@ -8,6 +8,11 @@ IdPorten on the [nais][1] platform. It runs on the JVM and uses Spring Boot and
 [1]: https://nais.io/
 [2]: https://connect2id.com/products/nimbus-oauth-openid-connect-sdk
 
+The main flows of the app can be traced from the [AuthController][3] class and
+other classes in the same package.
+
+[3]: https://github.com/navikt/pam-tsbx-front/blob/main/src/main/java/no/nav/arbeid/tsbx/auth/AuthController.java
+
 ## Running locally
 
 ### From IntelliJ
@@ -28,17 +33,18 @@ app itself always runs on `https://localhost:9111`.
 
 To trigger an OIDC login flow, open your browser at:
 
-https://localhost:9111/auth/login
+https://localhost:9111/
 
-You should be immediately redirected to a login page on the mock oauth server.
-For a successful login to occur, input a name and include these additional
-claims on the login page:
+Click the login link. You should be immediately redirected to a login page on
+the mock oauth server. For a successful login to occur, input a name and include
+these additional claims on the login page:
 
 ```json
-{ "acr": "Level3", "pid": "<11 digits>" }
+{ "acr": "Level3", "pid": "<exactly 11 digits>" }
 ```
 
-(these claims are required and validated by the app)
+These claims are required and validated by the app, so login will fail without
+this extra input.
 
 ## Tests
 

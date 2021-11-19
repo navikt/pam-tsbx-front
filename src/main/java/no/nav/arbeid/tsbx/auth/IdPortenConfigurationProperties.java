@@ -20,13 +20,6 @@ public record IdPortenConfigurationProperties(
         URI redirectUri,
         URI wellKnownUrl
 ) {
-    /**
-     *
-     * @param clientId client id as string
-     * @param clientJwk client JWK as a literal JSON-formatted string, RSA private key type.
-     * @param redirectUri where should idporten redirect users after authentication ?
-     * @param wellKnownUrl OIDC "well known" metadata endpoint
-     */
     public IdPortenConfigurationProperties {
         Objects.requireNonNull(clientUri);
         Objects.requireNonNull(postLogoutUri);
