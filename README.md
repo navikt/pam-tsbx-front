@@ -11,7 +11,7 @@ IdPorten on the [nais][1] platform. It runs on the JVM and uses Spring Boot and
 The main flows of the app can be traced from the [`AuthController`][3] class and
 other classes in the same package.
 
-[3]: https://github.com/navikt/pam-tsbx-front/blob/main/src/main/java/no/nav/arbeid/tsbx/auth/AuthController.java
+[3]: src/main/java/no/nav/arbeid/tsbx/auth/AuthController.java
 
 ## Running locally
 
@@ -50,7 +50,7 @@ this extra input.
 
 Integration test [`AuthControllerIT`][4] tests the entire login flow.
 
-[4]: https://github.com/navikt/pam-tsbx-front/blob/main/src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
+[4]: src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
 
 ## Session storage
 
