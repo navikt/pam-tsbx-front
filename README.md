@@ -8,7 +8,7 @@ IdPorten on the [nais][1] platform. It runs on the JVM and uses Spring Boot and
 [1]: https://nais.io/
 [2]: https://connect2id.com/products/nimbus-oauth-openid-connect-sdk
 
-The main flows of the app can be traced from the [AuthController][3] class and
+The main flows of the app can be traced from the [`AuthController`][3] class and
 other classes in the same package.
 
 [3]: https://github.com/navikt/pam-tsbx-front/blob/main/src/main/java/no/nav/arbeid/tsbx/auth/AuthController.java
@@ -48,8 +48,9 @@ this extra input.
 
 ## Tests
 
-Integration test `AuthControllerIT` tests the entire login flow.
+Integration test [`AuthControllerIT`][4] tests the entire login flow.
 
+[4]: https://github.com/navikt/pam-tsbx-front/blob/main/src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
 
 ## Session storage
 
