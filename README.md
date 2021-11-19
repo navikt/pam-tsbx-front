@@ -33,7 +33,7 @@ app itself always runs on `https://localhost:9111`.
 
 To trigger an OIDC login flow, open your browser at:
 
-https://localhost:9111/
+http://localhost:9111/
 
 Click the login link. You should be immediately redirected to a login page on
 the mock oauth server. For a successful login to occur, input a name and include
