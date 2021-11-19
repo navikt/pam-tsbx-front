@@ -1,5 +1,6 @@
 package no.nav.arbeid.tsbx.auth;
 
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -41,6 +42,13 @@ public class AuthConfiguration {
         LOG.info("ID-porten client configuration: clientUri: {}, clientId: {}, redirectUri: {}, well-known: {}",
                 idPortenConfigurationProperties.clientUri(), idPortenConfigurationProperties.clientId(),
                 idPortenConfigurationProperties.redirectUri(), idPortenConfigurationProperties.wellKnownUrl());
+
+        try {
+            JWK clientJwk = JWK.parse(idPortenConfigurationProperties.clientJwk());
+            LOG.info("Parsed client JWK: {}" + clientJwk.toJSONObject());
+        } catch (java.text.ParseException pe) {
+            LOG.warn("Failed to parse client JWK", pe);
+        }
     }
 
     private void logOidcProviderMetadata(OIDCProviderMetadata metadata) {
