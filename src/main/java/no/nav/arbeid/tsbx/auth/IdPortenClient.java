@@ -65,9 +65,7 @@ public class IdPortenClient {
                     tokenEndpoint,
                     clientAuth,
                     authorizationCodeGrant,
-                    new Scope(OIDCScopeValue.OPENID),
-                    List.of(idPortenProps.clientUri()),
-                    Map.of("redirectUri", List.of(idPortenProps.redirectUri().toASCIIString())));
+                    new Scope(OIDCScopeValue.OPENID));
 
             final var tokenResponse = tokenRequest.toHTTPRequest().send();
             if (!tokenResponse.indicatesSuccess()) {
@@ -130,7 +128,7 @@ public class IdPortenClient {
         return new PrivateKeyJWT(jwtAuthenticationClaimsSet,
                 JWSAlgorithm.RS256,
                 clientKey.toRSAPrivateKey(),
-                clientKey.getKeyID(),
+                null,
                 null);
     }
 
