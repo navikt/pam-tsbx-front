@@ -19,7 +19,7 @@
         fetch("/user", { cache: 'no-cache' })
             .then((res) => {
                 if (res.status !== 200) {
-                    throw Error("Not logged in");
+                    throw new Error("Not logged in");
                 }
                 return res.json();
             })
