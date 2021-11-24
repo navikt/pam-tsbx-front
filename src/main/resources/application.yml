@@ -9,6 +9,7 @@ logback:
   access:
     config-resource: /logback-access.xml
 
+# Configuration to act as OIDC client of ID-porten:
 idporten:
   clientUri: https://nav.no
   postLogoutUri: ${IDPORTEN_POST_LOGOUT_URI}
@@ -16,3 +17,21 @@ idporten:
   clientJwk: ${IDPORTEN_CLIENT_JWK}
   redirectUri: ${IDPORTEN_REDIRECT_URI}
   wellKnownUrl: ${IDPORTEN_WELL_KNOWN_URL}
+
+# Configuration to act as OAuth token exchange client of Tokendings (NAV infrastructure) for access to
+# pam-tsbx-api
+pam-tsbx-api:
+  messagesUrl: http://pam-tsbx-api/api/v1/messages
+
+no.nav.security.jwt:
+  client:
+    registration:
+      pam-tsbx-api:
+        token-endpoint-url: ${TOKEN_X_WELL_KNOWN_URL}
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: ${NAIS_CLUSTER_NAME}:${NAIS_NAMESPACE}:pam-tsbx-api

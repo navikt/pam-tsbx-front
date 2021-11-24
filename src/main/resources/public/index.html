@@ -5,18 +5,33 @@
     <meta charset='utf-8'>
     <style>
         body { font-family: Arial, Helvetica, sans-serif; }
+        .invisible { visibility: hidden; }
+        .message__title { font-weight: bold; }
+        .message__employer { color: deepskyblue; }
+        #messageList li { margin-top: 1rem; margin-bottom: 1rem }
     </style>
 </head>
 <body>
 
+<header>
 <h1>Token sandbox front &#x1f3d6;&#xfe0f;</h1>
 <p id="userInfo"></p>
 <p id="userActions"></p>
+</header>
+
+<main>
+    <section id="messages" class="invisible">
+        <h2>Your messages</h2>
+        <ul id="messageList"></ul>
+    </section>
+</main>
+
 <script>
-    function updateUserInfo() {
+    async function checkLoggedIn() {
         const userInfo = document.getElementById('userInfo');
         const userActions = document.getElementById('userActions');
-        fetch("/user", { cache: 'no-cache' })
+
+        return fetch("/user", { cache: 'no-cache' })
             .then((res) => {
                 if (res.status !== 200) {
                     throw new Error("Not logged in");
@@ -24,15 +39,43 @@
                 return res.json();
             })
             .then((user) => {
-                userInfo.innerHTML = `Du er logget inn som ${user.name} (${user.pid}).`;
-                userActions.innerHTML = `<a href="/auth/logout">Logg ut</a>`;
+                userInfo.innerHTML = `Logged in as ${user.name} (${user.pid}).`;
+                userActions.innerHTML = `<a href="/auth/logout">Log out</a>`;
+                return true;
             })
             .catch((err) => {
-                userInfo.innerHTML = `Du er ikke logget inn.`;
-                userActions.innerHTML = `<a href="/auth/login">Logg inn med ID-porten</a>`;
+                userInfo.innerHTML = `Not logged in.`;
+                userActions.innerHTML = `<a href="/auth/login">Log in with ID-porten</a>`;
+                return false;
             })
     }
-    updateUserInfo();
+    checkLoggedIn().then((loggedIn) => {
+        if (!loggedIn) {
+            return;
+        }
+
+        document.querySelector('#messages').classList.toggle('invisible');
+
+        fetch("/messages", { cache: 'no-cache' })
+            .then((res) => {
+                if (res.status === 200) {
+                    return res.json();
+                }
+                throw new Error(`failed to fetch messages: ${res.status} (maybe pam-tsbx-api is not running?)`);
+            })
+            .then((messages) => {
+                messages.forEach((m) => {
+                    const item = document.createElement('li');
+                    item.innerHTML = `<span class="message__title">${m.title}</span> <span class="message__employer">(${m.employer})</span><br><span class="message__text">${m.text}</span>`;
+                    document.getElementById('messageList').append(item);
+                });
+            })
+            .catch((err) => {
+                const item = document.createElement('li');
+                item.innerText = `Error: ${err.message}`;
+                document.getElementById('messageList').append(item);
+            });
+    });
 </script>
 </body>
 </html>

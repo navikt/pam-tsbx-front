@@ -69,7 +69,7 @@ public class AuthControllerIT {
     public void testIdPortenLoginAuthorizationCodeFlow() {
         final var expectedUserInfo = MockUserInfoFactory.generateRandomUser();
 
-        mockOAuth2Server.enqueueCallback(new DefaultOAuth2TokenCallback("default", expectedUserInfo.name(),
+        mockOAuth2Server.enqueueCallback(new DefaultOAuth2TokenCallback("idporten", expectedUserInfo.name(),
                 JOSEObjectType.JWT.getType(), null, Map.of(
                 "acr", "Level3",
                 "pid", expectedUserInfo.pid())));
@@ -95,7 +95,7 @@ public class AuthControllerIT {
     public void testLogout() {
         final var userInfo = MockUserInfoFactory.generateRandomUser();
 
-        mockOAuth2Server.enqueueCallback(new DefaultOAuth2TokenCallback("default", userInfo.name(),
+        mockOAuth2Server.enqueueCallback(new DefaultOAuth2TokenCallback("idporten", userInfo.name(),
                 JOSEObjectType.JWT.getType(), null, Map.of(
                 "acr", "Level3",
                 "pid", userInfo.pid())));

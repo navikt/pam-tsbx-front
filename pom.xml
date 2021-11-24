@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<mock-oauth2-server.version>0.4.0</mock-oauth2-server.version>
+		<token-support.version>1.3.9</token-support.version>
 		<!-- Required by mock-oauth2-server 0.4.0, cannot use value of property "okhttp3.version" from Spring Boot starter parent: -->
 		<okhttp3.version>4.9.2</okhttp3.version>
 	</properties>
@@ -44,6 +45,15 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>oauth2-oidc-sdk</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.security</groupId>
+			<artifactId>token-client-spring</artifactId>
+			<version>${token-support.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

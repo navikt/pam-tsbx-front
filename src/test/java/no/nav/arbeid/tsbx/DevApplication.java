@@ -10,7 +10,6 @@ public class DevApplication {
     public static void main(String...cmdLineArgs) {
         SpringApplication app = new SpringApplication(DevApplication.class);
         app.setAdditionalProfiles("test");
-        app.addInitializers(new MockOauth2ServerInitializer(true));
         app.run(cmdLineArgs);
     }
 

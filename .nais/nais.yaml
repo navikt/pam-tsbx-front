@@ -50,3 +50,11 @@ spec:
 
     # optional, in seconds - defaults shown (2 hours)
     sessionLifetime: 7200
+
+  # Enable communication with pam-tsbx-api through use of token exchange with Tokendings (local OAuth server in NAV infrastructure)
+  tokenx:
+    enabled: true
+  accessPolicy:
+    outbound:
+      rules:
+        - application: pam-tsbx-api

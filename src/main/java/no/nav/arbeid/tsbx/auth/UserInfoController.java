@@ -16,11 +16,13 @@ public class UserInfoController {
 
     @GetMapping("/user")
     public ResponseEntity getUserInfo() {
-        if (session.getUserInfo().isPresent()) {
-            return ResponseEntity.ok(session.getUserInfo().get());
-        }
+        try {
+            final UserInfo userInfo = session.checkValid().getUserInfo().get();
+            return ResponseEntity.ok(userInfo);
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sorry, you are not authenticated.");
+        } catch (UserSession.InvalidSessionException is) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sorry: " + is.getMessage());
+        }
     }
 
 }
