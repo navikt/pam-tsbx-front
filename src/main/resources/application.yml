@@ -27,7 +27,7 @@ no.nav.security.jwt:
   client:
     registration:
       pam-tsbx-api:
-        token-endpoint-url: ${TOKEN_X_WELL_KNOWN_URL}
+        well-known-url: ${TOKEN_X_WELL_KNOWN_URL}
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: ${TOKEN_X_CLIENT_ID}

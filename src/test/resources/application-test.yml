@@ -20,7 +20,7 @@ no.nav.security.jwt:
   client:
     registration:
       pam-tsbx-api:
-        token-endpoint-url: http://localhost:${mock-oauth2-server.port:8181}/tokendings/token
+        well-known-url: http://localhost:${mock-oauth2-server.port:8181}/tokendings/.well-known/oauth-authorization-server
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: pam-tsbx-front
