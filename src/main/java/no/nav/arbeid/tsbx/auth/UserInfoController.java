@@ -17,7 +17,7 @@ public class UserInfoController {
     @GetMapping("/user")
     public ResponseEntity getUserInfo() {
         try {
-            final UserInfo userInfo = session.checkValid().getUserInfo().get();
+            final UserInfo userInfo = session.getIfValid().getUserInfo().get();
             return ResponseEntity.ok(userInfo);
 
         } catch (UserSession.InvalidSessionException is) {

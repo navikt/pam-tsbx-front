@@ -40,7 +40,7 @@ public class AuthConfiguration {
 
     @Bean
     @SessionScope
-    public UserSession userSession() {
+    public UserSession userSessionProvider() {
         return new UserSession();
     }
 

@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 @RestController
 public class AuthController {
 
-    private final UserSession session;
+    private final UserSession sessionProvider;
 
     private final IdPortenClient idPortenClient;
 
@@ -30,10 +30,10 @@ public class AuthController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(UserSession session,
+    public AuthController(UserSession sessionProvider,
                           IdPortenClient idPortenClient,
                           IdPortenTokenValidator idTokenValidator) {
-        this.session = session;
+        this.sessionProvider = sessionProvider;
         this.idPortenClient = idPortenClient;
         this.idTokenValidator = idTokenValidator;
     }
@@ -43,11 +43,11 @@ public class AuthController {
      * */
     @GetMapping("/auth/login")
     public ResponseEntity<Void> login() {
-        if (session.getUserInfo().isPresent()) {
+        if (sessionProvider.isValid()) {
             return nonCacheableRedirectResponse("/");
         }
 
-        final var authState = session.setNewAuthFlowState();
+        final var authState = sessionProvider.setNewAuthFlowState();
         final var redirectToAuthorization = idPortenClient.buildAuthorizationRequestUri(authState);
 
         return nonCacheableRedirectResponse(redirectToAuthorization.toASCIIString());
@@ -60,12 +60,12 @@ public class AuthController {
      */
     @GetMapping("/auth/logout")
     public ResponseEntity<Void> applicationLogout(HttpServletRequest request, HttpSession httpSession) {
-        if (!session.getUserInfo().isPresent()) {
+        if (!sessionProvider.isValid()) {
             return nonCacheableRedirectResponse("/");
         }
 
-        final var idToken = session.getIdPortenSessionState()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)).idToken();
+        final var idToken = sessionProvider.getIdPortenSessionState()
+                .orElseThrow(() -> new IllegalStateException("Session unexpectedly missing id-porten state")).idToken();
 
         httpSession.invalidate();
 
@@ -82,7 +82,7 @@ public class AuthController {
      */
     @GetMapping("/oauth2/callback")
     public ResponseEntity<Void> callback(HttpServletRequest request) {
-        final var authState = session.getAndRemoveAuthFlowState()
+        final var authState = sessionProvider.getAndRemoveAuthFlowState()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad auth state"));
 
         try {
@@ -113,8 +113,8 @@ public class AuthController {
 
             // Step 5 of login flow, established session for authenticated user, redirect to application user info endpoint
             final var userInfo = new UserInfo(validatedClaimsSet.getSubject().getValue(), validatedClaimsSet.getStringClaim("pid"));
-            session.setUserInfo(userInfo);
-            session.setIdPortenSessionState(new IdPortenSessionState(validatedClaimsSet.getStringClaim("sid"), idToken));
+            sessionProvider.setUserInfo(userInfo);
+            sessionProvider.setIdPortenSessionState(new IdPortenSessionState(validatedClaimsSet.getStringClaim("sid"), idToken));
 
             return nonCacheableRedirectResponse("/");
 

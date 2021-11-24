@@ -39,7 +39,7 @@ public class UserSession implements Serializable {
         return Optional.ofNullable(instance);
     }
 
-    public UserSession checkValid() {
+    public UserSession getIfValid() {
         if (userInfo == null) {
             throw new InvalidSessionException("No user authenticated");
         }
@@ -54,6 +54,15 @@ public class UserSession implements Serializable {
             throw new InvalidSessionException("id token invalid");
         }
         return this;
+    }
+
+    public boolean isValid() {
+        try {
+            getIfValid();
+            return true;
+        } catch (InvalidSessionException e) {
+            return false;
+        }
     }
 
     public static class InvalidSessionException extends RuntimeException {

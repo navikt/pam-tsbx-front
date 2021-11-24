@@ -18,11 +18,11 @@ idporten:
   redirectUri: ${IDPORTEN_REDIRECT_URI}
   wellKnownUrl: ${IDPORTEN_WELL_KNOWN_URL}
 
-# Configuration to act as OAuth token exchange client of Tokendings (NAV infrastructure) for access to
-# pam-tsbx-api
 pam-tsbx-api:
   messagesUrl: http://pam-tsbx-api/api/v1/messages
 
+# Configuration to act as OAuth token exchange client of Tokendings authorization service (NAV infrastructure) for access to
+# pam-tsbx-api
 no.nav.security.jwt:
   client:
     registration:

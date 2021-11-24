@@ -9,8 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-
 /**
  * Fetch messages for user from pam-tsbx-api, on behalf of user.
  *
@@ -19,19 +17,18 @@ import static java.util.Collections.emptyList;
 @RestController
 public class MessagesController {
 
-    private final UserSession userSession;
+    private final UserSession sessionProvider;
     private final MessagesApiClient messagesApiClient;
 
-    public MessagesController(UserSession userSession, MessagesApiClient messagesApiClient) {
-        this.userSession = userSession;
+    public MessagesController(UserSession sessionProvider, MessagesApiClient messagesApiClient) {
+        this.sessionProvider = sessionProvider;
         this.messagesApiClient = messagesApiClient;
     }
 
     @GetMapping("/messages")
     public ResponseEntity<List<Message>> getMessages() {
-        final UserSession session;
         try {
-            session = userSession.checkValid();
+            sessionProvider.getIfValid();
         } catch (UserSession.InvalidSessionException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
