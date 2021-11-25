@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Token client for authorization code grant type
- * Build URLs for idporten redirects.
+ * 1. Token client for authorization code grant type
+ * 2. Build URLs for idporten redirects.
  */
 public class IdPortenClient {
 
@@ -49,9 +49,9 @@ public class IdPortenClient {
         }
     }
 
-    public OIDCTokenResponse fetchCodeGrantToken(AuthFlowState authFlowState, AuthorizationCode authCode) {
+    public OIDCTokenResponse fetchCodeGrantToken(AuthCodeFlowState authCodeFlowState, AuthorizationCode authCode) {
         final var callbackUri = idPortenProps.redirectUri();
-        final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authFlowState.getCodeVerifier());
+        final var authorizationCodeGrant = new AuthorizationCodeGrant(authCode, callbackUri, authCodeFlowState.getCodeVerifier());
         final var tokenEndpoint = oidcProvider.getTokenEndpointURI();
 
         try {
@@ -81,7 +81,7 @@ public class IdPortenClient {
         }
     }
 
-    public URI buildAuthorizationRequestUri(AuthFlowState authFlowState) {
+    public URI buildAuthorizationRequestUri(AuthCodeFlowState authCodeFlowState) {
         // The authorisation endpoint of the server
         URI authzEndpoint = oidcProvider.getAuthorizationEndpointURI();
 
@@ -95,9 +95,9 @@ public class IdPortenClient {
         return new AuthorizationRequest.Builder(new ResponseType(ResponseType.Value.CODE), clientID)
                 .scope(new Scope(OIDCScopeValue.OPENID))
                 .resource(idPortenProps.clientUri())
-                .state(authFlowState.getState())
-                .customParameter("nonce", authFlowState.getNonce().getValue())
-                .codeChallenge(authFlowState.getCodeVerifier(), CodeChallengeMethod.S256)
+                .state(authCodeFlowState.getState())
+                .customParameter("nonce", authCodeFlowState.getNonce().getValue())
+                .codeChallenge(authCodeFlowState.getCodeVerifier(), CodeChallengeMethod.S256)
                 .redirectionURI(callback)
                 .endpointURI(authzEndpoint)
                 .build()

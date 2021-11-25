@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -27,10 +26,8 @@ public class MessagesController {
 
     @GetMapping("/messages")
     public ResponseEntity<List<Message>> getMessages() {
-        try {
-            sessionProvider.getIfValid();
-        } catch (UserSession.InvalidSessionException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        if (!sessionProvider.authenticatedUser().isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         return ResponseEntity.ok(messagesApiClient.getMessagesForCurrentUser());

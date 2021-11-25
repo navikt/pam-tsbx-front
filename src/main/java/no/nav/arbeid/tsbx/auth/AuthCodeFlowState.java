@@ -11,13 +11,13 @@ import java.io.Serializable;
  * It is for the most part immutable.
  * Do not reuse across different authentication attempts.
  */
-public class AuthFlowState implements Serializable {
+public class AuthCodeFlowState implements Serializable {
 
     private final State state;
     private final Nonce nonce;
     private final CodeVerifier codeVerifier;
 
-    public AuthFlowState() {
+    public AuthCodeFlowState() {
         state = new State();
         nonce = new Nonce();
         codeVerifier = new CodeVerifier();

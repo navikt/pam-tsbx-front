@@ -1,6 +1,6 @@
 package no.nav.arbeid.tsbx.messages;
 
-import com.nimbusds.jwt.JWT;
+import no.nav.arbeid.tsbx.auth.AuthenticatedUser;
 import no.nav.arbeid.tsbx.auth.UserSession;
 import no.nav.security.token.support.client.core.ClientProperties;
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
@@ -44,7 +44,7 @@ public class MessagesApiClientConfiguration {
     }
 
     /**
-     * This bridges how token-support acquires JWT id-tokens from the user session in this demo app,
+     * This bridges how token-support acquires JWT access token from the user session in this demo app,
      * for use in token exchange requests.
      *
      * @param userSession the user session accessor bean
@@ -55,12 +55,10 @@ public class MessagesApiClientConfiguration {
         return new TokenValidationContextHolder() {
             @Override
             public TokenValidationContext getTokenValidationContext() {
-                final Optional<JWT> idToken = userSession.getIdPortenSessionState().map(idpss -> idpss.idToken());
-                if (!idToken.isPresent()) {
-                    return null;
-                }
-
-                return new TokenValidationContext(Map.of("idporten", new JwtToken(idToken.get().getParsedString())));
+                return userSession.authenticatedUser()
+                        .map(AuthenticatedUser::idPortenSession)
+                        .map(idp -> new JwtToken(idp.accessToken().getValue()))
+                        .map(jwt -> new TokenValidationContext(Map.of("idporten", jwt))).orElse(null);
             }
 
             @Override

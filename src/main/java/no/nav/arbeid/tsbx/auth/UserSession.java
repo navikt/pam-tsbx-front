@@ -1,74 +1,36 @@
 package no.nav.arbeid.tsbx.auth;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 public class UserSession implements Serializable {
 
-    private UserInfo userInfo;
-    private AuthFlowState authFlowState;
-    private IdPortenSessionState idPortenSessionState;
+    private AuthCodeFlowState authCodeFlowState;
+    private AuthenticatedUser authenticatedUser;
 
-    public Optional<UserInfo> getUserInfo() {
-        return Optional.ofNullable(userInfo);
+    /**
+     * @return authenticated user from session, empty optional if no authenticated user set or access token
+     * has expired.
+     */
+    public Optional<AuthenticatedUser> authenticatedUser() {
+        return Optional.ofNullable(authenticatedUser).filter(a -> !a.idPortenSession().isAccessTokenExpired());
     }
 
-    public void setUserInfo(UserInfo userInfo) {
-        this.userInfo = userInfo;
+    public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = Objects.requireNonNull(authenticatedUser);
     }
 
-    public Optional<IdPortenSessionState> getIdPortenSessionState() {
-        return Optional.ofNullable(idPortenSessionState);
-    }
-
-    public void setIdPortenSessionState(IdPortenSessionState idPortenSessionState) {
-        this.idPortenSessionState = idPortenSessionState;
-    }
-
-    public AuthFlowState setNewAuthFlowState() {
-        final AuthFlowState instance = new AuthFlowState();
-        this.authFlowState = instance;
+    public AuthCodeFlowState setNewAuthCodeFlowState() {
+        final AuthCodeFlowState instance = new AuthCodeFlowState();
+        this.authCodeFlowState = instance;
         return instance;
     }
 
-    public Optional<AuthFlowState> getAndRemoveAuthFlowState() {
-        final AuthFlowState instance = this.authFlowState;
-        this.authFlowState = null;
+    public Optional<AuthCodeFlowState> getAndRemoveAuthCodeFlowState() {
+        final AuthCodeFlowState instance = this.authCodeFlowState;
+        this.authCodeFlowState = null;
         return Optional.ofNullable(instance);
-    }
-
-    public UserSession getIfValid() {
-        if (userInfo == null) {
-            throw new InvalidSessionException("No user authenticated");
-        }
-        if (idPortenSessionState == null) {
-            throw new InvalidSessionException("Missing idporten session state");
-        }
-        try {
-            if (idPortenSessionState.idToken().getJWTClaimsSet().getExpirationTime().before(new Date())) {
-                throw new InvalidSessionException("id token is expired");
-            }
-        } catch (ParseException e) {
-            throw new InvalidSessionException("id token invalid");
-        }
-        return this;
-    }
-
-    public boolean isValid() {
-        try {
-            getIfValid();
-            return true;
-        } catch (InvalidSessionException e) {
-            return false;
-        }
-    }
-
-    public static class InvalidSessionException extends RuntimeException {
-        public InvalidSessionException(String message) {
-            super(message);
-        }
     }
 
 }
