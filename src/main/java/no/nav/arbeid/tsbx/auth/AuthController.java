@@ -3,6 +3,7 @@ package no.nav.arbeid.tsbx.auth;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class AuthController {
             // Step 4 of login flow: validate id token
             IDTokenClaimsSet validatedClaimsSet = idTokenValidator.validate(idToken, authState.getNonce());
 
-            LOG.info("Issued ID token expires at {}", validatedClaimsSet.getExpirationTime().toString());
+            logReceivedTokens(tokenResponse);
 
             // Step 5 of login flow, established session for authenticated user, redirect to application user info endpoint
             final var userInfo = new UserInfo(validatedClaimsSet.getSubject().getValue(), validatedClaimsSet.getStringClaim("pid"));
@@ -120,10 +121,21 @@ public class AuthController {
 
             return nonCacheableRedirectResponse("/");
 
-        } catch (URISyntaxException | ParseException | IdPortenTokenValidator.IdPortenTokenValidationException e) {
+        } catch (URISyntaxException | ParseException | IdPortenTokenValidator.IdPortenTokenValidationException | java.text.ParseException e) {
             LOG.warn("Oauth flow exception for callback request", e);
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    private void logReceivedTokens(OIDCTokenResponse tokenResponse) throws java.text.ParseException {
+        LOG.info("OAuth token response id_token: issuer={}, expiration={}",
+                tokenResponse.getOIDCTokens().getIDToken().getJWTClaimsSet().getIssuer(),
+                tokenResponse.getOIDCTokens().getIDToken().getJWTClaimsSet().getExpirationTime());
+        LOG.info("OAuth token response access_token={}",
+                tokenResponse.getTokens().getAccessToken().toJSONObject());
+        LOG.info("OAuth token response refresh_token={}",
+                tokenResponse.getTokens().getRefreshToken().toJSONObject());
+        LOG.info("OAuth entire token response: " + tokenResponse.toJSONObject());
     }
 
     /**
