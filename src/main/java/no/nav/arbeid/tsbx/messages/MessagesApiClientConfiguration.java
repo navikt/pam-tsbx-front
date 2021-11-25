@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Configuration
-@EnableOAuth2Client
+@EnableOAuth2Client(cacheEnabled = true)
 public class MessagesApiClientConfiguration {
 
     @Bean
