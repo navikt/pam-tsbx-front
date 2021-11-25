@@ -111,6 +111,8 @@ public class AuthController {
             // Step 4 of login flow: validate id token
             IDTokenClaimsSet validatedClaimsSet = idTokenValidator.validate(idToken, authState.getNonce());
 
+            LOG.info("Issued ID token expires at {}", validatedClaimsSet.getExpirationTime().toString());
+
             // Step 5 of login flow, established session for authenticated user, redirect to application user info endpoint
             final var userInfo = new UserInfo(validatedClaimsSet.getSubject().getValue(), validatedClaimsSet.getStringClaim("pid"));
             sessionProvider.setUserInfo(userInfo);
