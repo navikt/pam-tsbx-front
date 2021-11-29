@@ -4,6 +4,11 @@ spring:
 
 server:
   port: 9111
+  servlet:
+    session:
+      cookie:
+        name: TSBXSID
+      timeout: 60m
 
 logback:
   access:
