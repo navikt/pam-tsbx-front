@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Optional;
 
 @RestController
 public class AuthController {
@@ -147,16 +148,31 @@ public class AuthController {
      * browser security policies.
      */
     @GetMapping("/oauth2/logout")
-    public ResponseEntity<Void> logout(@RequestParam("sid") String idPortenSessionId,
-                                       @RequestParam("iss") String issuer) {
-        if (!idPortenClient.isKnownIssuer(new Issuer(issuer))) {
+    public ResponseEntity<Void> logout(@RequestParam("sid") String requestSid,
+                                       @RequestParam("iss") String requestIssuer) {
+        if (!idPortenClient.isKnownIssuer(new Issuer(requestIssuer))) {
             LOG.warn("Bad issuer for front channel logout event");
             return ResponseEntity.badRequest().build();
         }
 
-        frontChannelLogoutEventStore.registerLogout(idPortenSessionId);
+        // We may not always have local session context available because there is no guarantee the browser includes session cookie
+        // for these requests.
+        final Optional<String> sessionSid = sessionProvider.authenticatedUser()
+                .map(AuthenticatedUser::idPortenSession)
+                .map(IdPortenSession::idPortenSessionIdentifier);
 
-        LOG.info("Registered front channel logout event for sid {}, issuer {}", idPortenSessionId, issuer);
+        if (sessionSid.isPresent()) {
+            if (requestSid.equals(sessionSid.get())) {
+                sessionProvider.invalidate();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            // Local session context not available, register the event for possible later invalidation
+            frontChannelLogoutEventStore.registerLogout(requestSid);
+            LOG.info("No local session found for front channel logout event, sid {}, issuer {}", requestSid, requestIssuer);
+        }
+
         return nonCacheableResponse(HttpStatus.NO_CONTENT).build();
     }
 
