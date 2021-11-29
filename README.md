@@ -101,4 +101,4 @@ works when running as a single pod.
 ## TODO
 
 - externalize session store to Redis or JDBC.
-- implement front channel logout (logout initiated from OP as part of SLO process)
+
