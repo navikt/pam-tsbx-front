@@ -1,8 +1,9 @@
 package no.nav.arbeid.tsbx.auth;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public record UserInfo(String name, String pid) {
+public record UserInfo(String name, String pid) implements Serializable {
 
     public String name() {
         if (name.endsWith("=")) {

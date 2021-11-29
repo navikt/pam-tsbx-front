@@ -3,6 +3,7 @@ package no.nav.arbeid.tsbx.auth;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
@@ -17,11 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.Map;
 
 @RestController
 public class AuthController {
@@ -32,14 +31,18 @@ public class AuthController {
 
     private final IdPortenTokenValidator idTokenValidator;
 
+    private final IdPortenFrontChannelLogoutEventStore frontChannelLogoutEventStore;
+
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
     public AuthController(UserSession sessionProvider,
                           IdPortenClient idPortenClient,
-                          IdPortenTokenValidator idTokenValidator) {
+                          IdPortenTokenValidator idTokenValidator,
+                          IdPortenFrontChannelLogoutEventStore frontChannelLogoutEventStore) {
         this.sessionProvider = sessionProvider;
         this.idPortenClient = idPortenClient;
         this.idTokenValidator = idTokenValidator;
+        this.frontChannelLogoutEventStore = frontChannelLogoutEventStore;
     }
 
     /**
@@ -55,26 +58,6 @@ public class AuthController {
         final var redirectToAuthorization = idPortenClient.buildAuthorizationRequestUri(authState);
 
         return nonCacheableRedirectResponse(redirectToAuthorization.toASCIIString());
-    }
-
-    /**
-     * Logout initiated from application.
-     * @param request
-     * @return
-     */
-    @GetMapping("/auth/logout")
-    public ResponseEntity<Void> applicationLogout(HttpServletRequest request, HttpSession httpSession) {
-        if (!sessionProvider.authenticatedUser().isPresent()) {
-            return nonCacheableRedirectResponse("/");
-        }
-
-        final var idToken = sessionProvider.authenticatedUser().map(a -> a.idPortenSession().idToken())
-                .orElseThrow(() -> new IllegalStateException("Session unexpectedly missing id-porten state"));
-
-        httpSession.invalidate();
-
-        final var idPortenEndSessionUri = idPortenClient.buildEndSessionRequestUri(idToken);
-        return nonCacheableRedirectResponse(idPortenEndSessionUri.toASCIIString());
     }
 
     /**
@@ -137,24 +120,56 @@ public class AuthController {
     }
 
     /**
-     * OIDC front channel logout.
+     * Logout initiated from <em>this</em> application.
      *
-     * Calls to this endpoint come from ID-porten directly, not end user. So end user session is typically not available.
+     * @return a response redirecting end user to OP endsession endpoint.
+     */
+    @GetMapping("/auth/logout")
+    public ResponseEntity<Void> applicationLogout() {
+        if (!sessionProvider.authenticatedUser().isPresent()) {
+            return nonCacheableRedirectResponse("/");
+        }
+
+        final var idToken = sessionProvider.authenticatedUser().map(a -> a.idPortenSession().idToken())
+                .orElseThrow(() -> new IllegalStateException("Session unexpectedly missing id-porten state"));
+
+        sessionProvider.invalidate();
+
+        final var idPortenEndSessionUri = idPortenClient.buildEndSessionRequestUri(idToken);
+        return nonCacheableRedirectResponse(idPortenEndSessionUri.toASCIIString());
+    }
+
+    /**
+     * OIDC front channel logout (logout initiated from some other app sharing the same OP session).
+     *
+     * Calls to this endpoint is typically initiated and orchestrated by OP, but actual requests come from end user's
+     * browser. However, we cannot rely on our local session cookie being sent together with such requests due to
+     * browser security policies.
      */
     @GetMapping("/oauth2/logout")
-    public ResponseEntity<String> logout(@RequestParam("sid") String idPortenSessionId,
-                                         @RequestParam("iss") String issuer) {
+    public ResponseEntity<Void> logout(@RequestParam("sid") String idPortenSessionId,
+                                       @RequestParam("iss") String issuer) {
+        if (!idPortenClient.isKnownIssuer(new Issuer(issuer))) {
+            LOG.warn("Bad issuer for front channel logout event");
+            return ResponseEntity.badRequest().build();
+        }
 
-        // TODO map idporten session id to local session id and invalidate.
-        return ResponseEntity.ok("Sorry, I did nothing with that");
+        frontChannelLogoutEventStore.registerLogout(idPortenSessionId);
+
+        LOG.info("Registered front channel logout event for sid {}, issuer {}", idPortenSessionId, issuer);
+        return nonCacheableResponse(HttpStatus.NO_CONTENT).build();
+    }
+
+    private ResponseEntity.BodyBuilder nonCacheableResponse(HttpStatus status) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CACHE_CONTROL, "no-store, no-cache");
+        headers.add(HttpHeaders.PRAGMA, "no-cache");
+        return ResponseEntity.status(status).headers(headers);
     }
 
     private ResponseEntity<Void> nonCacheableRedirectResponse(String redirectLocation) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.LOCATION, redirectLocation);
-        headers.add(HttpHeaders.CACHE_CONTROL, "no-store, no-cache");
-        headers.add(HttpHeaders.PRAGMA, "no-cache");
-        return ResponseEntity.status(HttpStatus.FOUND).headers(headers).build();
+        return nonCacheableResponse(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectLocation).build();
     }
 
 }

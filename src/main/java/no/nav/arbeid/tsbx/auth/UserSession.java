@@ -33,4 +33,9 @@ public class UserSession implements Serializable {
         return Optional.ofNullable(instance);
     }
 
+    public void invalidate() {
+        authenticatedUser = null;
+        authCodeFlowState = null;
+    }
+
 }

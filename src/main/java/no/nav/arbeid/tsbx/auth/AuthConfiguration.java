@@ -45,6 +45,17 @@ public class AuthConfiguration {
     }
 
     @Bean
+    public IdPortenFrontChannelLogoutEventStore frontChannelLogoutEventStore() {
+        return new IdPortenFrontChannelLogoutEventStore();
+    }
+
+    @Bean
+    public IdPortenFrontChannelLogoutFilter frontChannelLogoutInvalidationFilter(UserSession sessionProvider,
+                                                                                 IdPortenFrontChannelLogoutEventStore frontChannelLogoutEventStore){
+        return new IdPortenFrontChannelLogoutFilter(sessionProvider, frontChannelLogoutEventStore);
+    }
+
+    @Bean
     public IdPortenClient oidcTokenClient(OIDCProviderMetadata oidcProviderMetadata, IdPortenConfigurationProperties idPortenProps) {
         return new IdPortenClient(oidcProviderMetadata, idPortenProps);
     }

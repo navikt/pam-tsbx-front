@@ -10,6 +10,7 @@ import com.nimbusds.oauth2.sdk.auth.JWTAuthenticationClaimsSet;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -111,6 +112,10 @@ public class IdPortenClient {
                 idPortenProps.postLogoutUri(),
                 null);
         return logoutRequest.toURI();
+    }
+
+    public boolean isKnownIssuer(Issuer issuer) {
+        return oidcProvider.getIssuer().equals(issuer);
     }
 
     private RSAKey parseClientJwk() throws ParseException {

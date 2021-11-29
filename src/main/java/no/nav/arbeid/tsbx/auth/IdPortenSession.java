@@ -4,6 +4,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -16,7 +17,8 @@ public record IdPortenSession(
         AccessToken accessToken,
         RefreshToken refreshToken,
         Instant accessTokenExpiry
-) {
+) implements Serializable {
+
     public IdPortenSession {
         Objects.requireNonNull(idToken);
         Objects.requireNonNull(accessToken);
