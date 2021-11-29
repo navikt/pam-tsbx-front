@@ -142,5 +142,33 @@ public class AuthControllerIT {
         assertEquals(HttpStatus.UNAUTHORIZED, userInfoResponse.getStatusCode());
     }
 
+    @Test
+    public void testFrontChannelLogout_noSessionAvailable() {
+        final var userInfo = MockUserInfoFactory.generateRandomUser();
+
+        mockOAuth2Server.enqueueCallback(new DefaultOAuth2TokenCallback("idporten", userInfo.name(),
+                JOSEObjectType.JWT.getType(), null, Map.of(
+                "acr", "Level3",
+                "sid", "sidvalue",
+                "pid", userInfo.pid())));
+
+        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get(localServerUrl() + "/auth/login")
+                .accept(MediaType.TEXT_HTML).build(), Void.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // Simulate front channel logout call without cookies included
+        TestRestTemplate otherClient = new TestRestTemplate();
+        ResponseEntity<Void> logoutResponse = otherClient.exchange(RequestEntity.get(
+                restTemplate.getRootUri() + "/oauth2/logout?sid=sidvalue&iss={iss}",
+                mockOAuth2Server.issuerUrl("idporten"))
+                .build(), Void.class);
+        assertEquals(HttpStatus.NO_CONTENT, logoutResponse.getStatusCode());
+
+        ResponseEntity<String> userInfoResponse = restTemplate.exchange(RequestEntity.get("/user")
+                .accept(MediaType.TEXT_PLAIN)
+                .build(), String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, userInfoResponse.getStatusCode());
+    }
 
 }
