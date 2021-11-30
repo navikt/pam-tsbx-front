@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,10 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_COOKIES;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_REDIRECTS;
-
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
@@ -48,16 +45,9 @@ public class AuthControllerIT {
         restTemplate.setUriTemplateHandler(new LocalHostUriTemplateHandler(env));
     }
 
-    @LocalServerPort
-    private int port;
-
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private MockOAuth2Server mockOAuth2Server;
-
-    private String localServerUrl() {
-        return "http://localhost:" + port;
-    }
 
     @Test
     public void testRequireAuth() {
@@ -76,14 +66,14 @@ public class AuthControllerIT {
 
 
         ResponseEntity<Void> loginFlowResponse = restTemplate.exchange(
-                RequestEntity.get(localServerUrl() + "/auth/login")
+                RequestEntity.get("/auth/login")
                         .accept(MediaType.TEXT_HTML)
                         .build(), Void.class);
 
         assertEquals(HttpStatus.OK, loginFlowResponse.getStatusCode());
 
         ResponseEntity<UserInfo> userInfoResponse = restTemplate.exchange(
-                RequestEntity.get(localServerUrl() + "/user").accept(MediaType.APPLICATION_JSON).build(), UserInfo.class);
+                RequestEntity.get( "/user").accept(MediaType.APPLICATION_JSON).build(), UserInfo.class);
 
         assertEquals(expectedUserInfo.name(), userInfoResponse.getBody().name());
         assertEquals(expectedUserInfo.pid(), userInfoResponse.getBody().pid());
@@ -100,7 +90,7 @@ public class AuthControllerIT {
                 "acr", "Level3",
                 "pid", userInfo.pid())));
 
-        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get(localServerUrl() + "/auth/login")
+        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get( "/auth/login")
                 .accept(MediaType.TEXT_HTML).build(), Void.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -126,7 +116,7 @@ public class AuthControllerIT {
                 "sid", "testsid",
                 "pid", userInfo.pid())));
 
-        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get(localServerUrl() + "/auth/login")
+        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get("/auth/login")
                 .accept(MediaType.TEXT_HTML).build(), Void.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -152,7 +142,7 @@ public class AuthControllerIT {
                 "sid", "sidvalue",
                 "pid", userInfo.pid())));
 
-        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get(localServerUrl() + "/auth/login")
+        ResponseEntity<Void> response = restTemplate.exchange(RequestEntity.get("/auth/login")
                 .accept(MediaType.TEXT_HTML).build(), Void.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
