@@ -24,9 +24,10 @@ public class LifeCycleController {
     }
 
     @GetMapping("/stop")
-    public ResponseEntity<String> stop() {
-        log.info("Graceful shutdown requested by platform");
-        return ResponseEntity.ok("shutting down..");
+    public ResponseEntity<String> stop() throws Exception {
+        log.info("Graceful shutdown requested by platform, delaying 10 seconds ..");
+        Thread.sleep(10000);
+        return ResponseEntity.ok("shutdown");
     }
 
 }
