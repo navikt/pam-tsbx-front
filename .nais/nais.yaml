@@ -16,9 +16,9 @@ spec:
     path: "/internal/isready"
     initialDelay: 10
     timeout: 60
-   preStopHook:
-     http:
-       path: "/internal/stop"
+  preStopHook:
+    http:
+      path: "/internal/stop"
   replicas:
     min: 1
     max: 1
