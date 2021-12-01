@@ -19,6 +19,7 @@ spec:
   preStopHook:
     http:
       path: "/internal/stop"
+      port: 9111
   replicas:
     min: 1
     max: 1
