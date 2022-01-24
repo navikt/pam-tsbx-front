@@ -50,10 +50,6 @@ Use the following command to start the Spring Boot app from Maven on the command
     
 ### Access app
 
-When running using either of the two above methods, a Mock OAuth2 server is
-started in parallel with the main app automatically, on a random free port. The
-app itself always runs on `https://localhost:9111`.
-
 To trigger an OIDC login flow, open your browser at:
 
 http://localhost:9111/
@@ -63,7 +59,7 @@ the mock oauth server. For a successful login to occur, input a name and include
 these additional claims on the login page:
 
 ```json
-{"acr": "Level3", "pid": "<exactly 11 digits>"}
+{"acr": "Level3", "pid": "01234567890"}
 ```
 
 These claims are required and validated by the app, so login will fail without
@@ -87,7 +83,11 @@ and an OAuth2 token exchange server.
 
 ## Tests
 
-Integration test [`AuthControllerIT`][4] tests the entire login flow.
+Integration test [`AuthControllerIT`][4] tests the entire login flow. A
+temporary private Mock Oauth2 server is started automatically when running
+tests, so these do not need a running instance in Docker. However, the tests use
+the default app web port, and so they will not run succcesfully if app is
+running locally at the same time.
 
 [4]: src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
 
@@ -101,4 +101,3 @@ works when running as a single pod.
 ## TODO
 
 - externalize session store to Redis or JDBC.
-
