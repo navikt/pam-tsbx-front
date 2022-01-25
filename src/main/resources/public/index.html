@@ -39,7 +39,7 @@
                 return res.json();
             })
             .then((user) => {
-                userInfo.innerHTML = `Logged in as ${user.name} (${user.pid}).`;
+                userInfo.innerHTML = `Logged in as ${user.name} (${user.pid}) (<a href="/user/idtoken/claims">see ID token claims</a>)`;
                 userActions.innerHTML = `<a href="/auth/logout">Log out</a>`;
                 return true;
             })
@@ -75,6 +75,8 @@
                 item.innerText = `Error: ${err.message}`;
                 document.getElementById('messageList').append(item);
             });
+
+
     });
 </script>
 </body>
