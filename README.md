@@ -95,3 +95,7 @@ temporary mock OAuth2 server instance.
 Session storage is required for proper authentication flow between the app and
 the authorization server. The app does not use external session storage and only
 works when running as a single pod on Kubernetes/nais.
+
+## Architecture and zero trust communication lines
+
+![Architecture diagram](tsbx.png)
