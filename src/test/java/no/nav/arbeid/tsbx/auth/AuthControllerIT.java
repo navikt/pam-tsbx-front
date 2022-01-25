@@ -2,10 +2,11 @@ package no.nav.arbeid.tsbx.auth;
 
 import com.nimbusds.jose.JOSEObjectType;
 import no.nav.arbeid.tsbx.Application;
-import no.nav.arbeid.tsbx.mocks.MockOauth2ServerInitializer;
+import no.nav.arbeid.tsbx.mocks.MockOAuth2ServerInitializer;
 import no.nav.arbeid.tsbx.mocks.MockUserInfoFactory;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.SocketUtils;
 
 import java.util.Map;
 
@@ -29,11 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_COOKIES;
 import static org.springframework.boot.test.web.client.TestRestTemplate.HttpClientOption.ENABLE_REDIRECTS;
 
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles("test")
-@ContextConfiguration(initializers = { MockOauth2ServerInitializer.class })
 @ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+                properties = {"server.port=${AuthControllerIT.local.server.port}"})
+@ContextConfiguration(initializers = MockOAuth2ServerInitializer.class)
+@ActiveProfiles("test")
 public class AuthControllerIT {
+
+    // We need local web server port properly resolvable in config for this test, since OAuth IDP redirects back to localhost.
+    // SpringBootTest.WebEnvironment.RANDOM_PORT initializes this too late and sets server.port=0.
+    @BeforeAll
+    public static void initServerPort() {
+        System.setProperty("AuthControllerIT.local.server.port", String.valueOf(SocketUtils.findAvailableTcpPort(20000,50000)));
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthControllerIT.class);
 

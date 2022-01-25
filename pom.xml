@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.6</version>
+		<version>2.5.9</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>no.nav.arbeid.tsbx</groupId>
@@ -16,7 +16,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<mock-oauth2-server.version>0.4.0</mock-oauth2-server.version>
+		<mock-oauth2-server.version>0.4.2</mock-oauth2-server.version>
 		<token-support.version>1.3.9</token-support.version>
 		<!-- Required by mock-oauth2-server 0.4.0, cannot use value of property "okhttp3.version" from Spring Boot starter parent: -->
 		<okhttp3.version>4.9.2</okhttp3.version>

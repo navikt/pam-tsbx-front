@@ -11,16 +11,16 @@ idporten:
   clientJwk: |
     {"p":"0OYsFs1BbGH4hx0OAcDOfUZYH57LR-RDgY04SJx82cH5lqHoqcF6uwWhvsuFZjrE8bGA2P10hyEwaE_fhVfEc0Lj-NI4nBQKsEbiQcO2A5vY6IqaFg2JH2kY8fYjKG0b2ldahWokGGx7k88PtBkBLl2GTRjO8XYn0bK2rdh7p-8","kty":"RSA","q":"w2T7nttTpG-dk7tLNi43eoLfB9QQOeNjVL8uRYi-lecgsFD2-ryeS0q5lIn5aeEI7MYQrg-05zNE-ddV5ujqWtfSukRcFwo6Qt-aL-rb3HVCMM3ECyBXS0Qj2gPQiyEDr87sdF0IcbjffKF7ZfeWbZlK3PK-bkCAScZzs8zDKX8","d":"Dqm734-25Mq6KcatiaR50DCpygcoOk0LKnmlI9LOzoIJQcokDDp1UcPMUhycKZzihMRMHpuBEqUqi_9V0E7ClVGPAUAEckBnnTNyEG5gEbQBQDTEXQGljNlJCyrgDyZjh3HkqrZ3fON8qIdbEJdriTOzEK8r6trkP4QThTW07jqDPmHg6IphL9GJNF4inRSCP5QFgwN8hvao6DCMSWcX5_LZUdl0ccss6Sp_bx20u0LJCJiw77wKXDGVwJWHs2l0dckXe9L8iBvFP8iTwFpBEKWu6fUxe7veGQCbM6NqxbGRUj4V_lk6fHcT66y06W1GP_Mg9Cueq-e1Ss13fY1GjQ","e":"AQAB","use":"sig","kid":"d3727a1f-812b-494a-8947-3c4d63325d65","qi":"IjzEg5GBXpxDuab4lLVKhLRXZCMABQ17arkjsCDg2DNZR9YF32K_1wN80GxcLl0q6uUi_MFhIxMDNgJiPvaTbYs_kbt-gSFoWUOnrOo1TDTXPCiZ1g10DI9n7JxDxOqhlr6g_G4Hy95cYf6rF3zJvqJk__DdGvHarsH-VSrsd4U","dp":"r3wMIYN_qBqM-oPP1m0viVFkifuNbPE2PEhztZuvzgYDMyUEHEaqYR2UCIFTqNNJyneAc8hG8ZVR4u7mKE_YebMBa269m2_Cot6JBxHvfwyWpJJ6angobriM-gX49ubhdQPYySam99V54msZGAPBWD-8qFtkzLajMKdeip_HEQU","dq":"J1lYyt8EcyL_KtcXCGw6Q_PDEoKEWgQO5uwxV1N4fhuzm45SjqAZiLQdt2opzkbBU1130nXbSowqod3ZsMzLFUxNZbGKkiE_JmR9WpUDfdwnXkix6EO1ELVCOw91me8mHOug9rYdkzlV2HV0sk4v_xZV2zUPYIigzTqn5legHeU","n":"n3G60eWDvPUf1eZmjK305lKSUKijgfyUTdmANgbSpkj2hUM7Wp8t1y-eYy1rAVx5jNdNueY_Cj8rVP0PqIZYb_i1PCVzVR1YSjUQLY1sGoIEAGzucq8xVcsn51xZ9tgk8lc_3dAYm8G2LZ6LO4df-ofZG9Te0-b8felG8j9hI4jXZoO5VEfVZ2LAwBwCrbN-kIWnFtAaoD4LYu6VBj2-MxhgjHSd4H9V7XLXCL9_Jhrun70WbKVWCzp3sgfb1VqSGL2ibymMjfNI2NVeOaKLHJBFNQhZCAu8DeYypm3LIj_y-JdDtDJk7KHjJnNBZx9upvqooojdYN9KmbEKkkqWkQ"}
   redirectUri: http://localhost:${server.port}/oauth2/callback
-  wellKnownUrl: http://localhost:${mock-oauth2-server.port:8181}/idporten/.well-known/openid-configuration
+  wellKnownUrl: http://${mock-oauth2-server.hostname}:${mock-oauth2-server.port}/idporten/.well-known/openid-configuration
 
 pam-tsbx-api:
   messagesUrl: http://localhost:9211/api/v1/messages
-
+# Authorized OAuth2 client which performs token exchange which grants access to pam-tsbx-api:
 no.nav.security.jwt:
   client:
     registration:
       pam-tsbx-api:
-        well-known-url: http://localhost:${mock-oauth2-server.port:8181}/tokendings/.well-known/oauth-authorization-server
+        well-known-url: http://${mock-oauth2-server.hostname}:${mock-oauth2-server.port}/tokendings/.well-known/oauth-authorization-server
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: pam-tsbx-front
