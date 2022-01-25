@@ -70,7 +70,7 @@ from the API. For this, see next chapter.
 ### Running local API component pam-tsbx-api as well
 
 Open project `pam-tsbx-api` and start it according to its
-[README](https://github.com/navikt/pam-tsbx-api):
+[README](https://github.com/navikt/pam-tsbx-api#running-this-api-locally):
 
     mvn -Pdev
     
