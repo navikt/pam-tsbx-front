@@ -28,16 +28,14 @@ the remote API component `pam-tsbx-api`.
 
 ## Running locally
 
-### Start app from IntelliJ
-
-Run as Spring Boot application with `DevApplication` as main class.
-
-### Or start app with Maven
-
-Use the following command to start the Spring Boot app from Maven on the command line:
+Java 17+ and Maven is required. Then just:
 
     mvn -Pdev
     
+### Or start app directly from IntelliJ
+
+Run as Spring Boot application with `DevApplication` as main class.
+
 ### Local OAuth2 server
 
 An OAuth2 server is required to run alongside the application locally. When
@@ -60,19 +58,24 @@ login page:
 {"acr": "Level3", "pid": "01234567890"}
 ```
 
-These claims are required and validated by the app, so login will fail without
-this extra input. The `pid` claim can be any 11 digit number.
+They are required and validated by the app, so login will fail without this
+extra input. The `pid` claim can be any 11 digit number. After successfully
+logging in, you will be returned to the front page. There you should see
+username and pid claim, and a link to see all id-token claims.
 
 You may notice on the front page that no personalized messages could be fetched
-from the API. For this, see next chapter.
+from pam-tsbx-api. For this, see next chapter.
 
 
 ### Running local API component pam-tsbx-api as well
 
-Open project `pam-tsbx-api` and start it according to its
-[README](https://github.com/navikt/pam-tsbx-api#running-this-api-locally):
+Open project [`pam-tsbx-api`][6] and start it according to its
+[README][7]:
 
     mvn -Pdev
+    
+[6]: https://github.com/navikt/pam-tsbx-api
+[7]: https://github.com/navikt/pam-tsbx-api#running-this-api-locally
     
 Reload front page and login if you haven't already. `pam-tsbx-front` will fetch
 user messages from the API using a token obtained through token exchange using
@@ -84,10 +87,10 @@ and an OAuth2 token exchange server.
 
 ## Tests
 
-Integration test [`AuthControllerIT`][6] tests the entire login flow using a
+Integration test [`AuthControllerIT`][8] tests the entire login flow using a
 temporary mock OAuth2 server instance.
 
-[6]: src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
+[8]: src/test/java/no/nav/arbeid/tsbx/auth/AuthControllerIT.java
 
 
 ## Session storage
